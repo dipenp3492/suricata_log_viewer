@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Suricata EVE Log Viewer</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- =========================================
+         SIDEBAR
+    ========================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                S
+            </div>
+
+            <div class="brand-text">
+
+                <strong>Suricata</strong>
+
+                <span>EVE LOG VIEWER</span>
+
+            </div>
+
+        </div>
+
+
+        <div class="sidebar-section">
+
+            <div class="sidebar-label">
+                MONITORING
+            </div>
+
+            <div class="sidebar-item active">
+
+                <span class="sidebar-icon">◉</span>
+
+                <span>Event Overview</span>
+
+            </div>
+
+        </div>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="connection-status">
+
+                <span class="status-dot"></span>
+
+                <div>
+
+                    <strong>Local Analyzer</strong>
+
+                    <small>Ready</small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================================
+         MAIN CONTENT
+    ========================================== -->
+
+    <main class="main-content">
+
+
+        <!-- TOP HEADER -->
+
+        <header class="top-header">
+
+            <div>
+
+                <div class="breadcrumb">
+                    Security / Log Analysis
+                </div>
+
+                <h1>
+                    EVE Log Dashboard
+                </h1>
+
+                <p>
+                    Analyze and inspect Suricata network security events.
+                </p>
+
+            </div>
+
+
+            <div class="header-actions">
+
+                <label class="load-button">
+
+                    <span class="upload-icon">↑</span>
+
+                    Load EVE File
+
+                    <input
+                        type="file"
+                        id="fileInput"
+                        accept=".jsonl,.json,.txt,application/json"
+                    >
+
+                </label>
+
+            </div>
+
+        </header>
+
+
+        <div class="content-container">
+
+
+            <!-- =========================================
+                 STATISTICS
+            ========================================== -->
+
+            <section class="stats-grid">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon blue">
+                        ≡
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>Total Events</span>
+
+                        <strong id="totalCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon red">
+                        !
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>Security Alerts</span>
+
+                        <strong id="alertCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon green">
+                        ✓
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>Visible Events</span>
+
+                        <strong id="visibleCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon orange">
+                        ×
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>Parse Errors</span>
+
+                        <strong id="errorCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+            <!-- =========================================
+                 FILTER PANEL
+            ========================================== -->
+
+            <section class="filter-panel">
+
+
+                <div class="filter-heading">
+
+                    <div>
+
+                        <h2>
+                            Event Explorer
+                        </h2>
+
+                        <p>
+                            Filter and search through your EVE records.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        id="resetBtn"
+                        class="reset-button"
+                        type="button"
+                    >
+
+                        Reset Filters
+
+                    </button>
+
+                </div>
+
+
+                <div class="filter-grid">
+
+
+                    <div class="filter-control">
+
+                        <label for="eventFilter">
+                            Event Type
+                        </label>
+
+                        <select id="eventFilter">
+
+                            <option value="all">
+                                All Events
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="filter-control search-control">
+
+                        <label for="searchInput">
+                            Search Events
+                        </label>
+
+                        <div class="search-box">
+
+                            <span>
+                                ⌕
+                            </span>
+
+                            <input
+                                id="searchInput"
+                                type="search"
+                                placeholder="Search IP, signature, domain, URL..."
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="filter-control">
+
+                        <label for="sortOrder">
+                            Sort By
+                        </label>
+
+                        <select id="sortOrder">
+
+                            <option value="desc">
+                                Newest First
+                            </option>
+
+                            <option value="asc">
+                                Oldest First
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================
+                 STATUS
+            ========================================== -->
+
+            <div
+                id="status"
+                class="status-bar"
+                role="status"
+            >
+
+                <span class="status-indicator"></span>
+
+                Loading default EVE file...
+
+            </div>
+
+
+            <!-- =========================================
+                 EVENTS HEADER
+            ========================================== -->
+
+            <div class="events-header">
+
+                <div>
+
+                    <h2>
+                        Network Events
+                    </h2>
+
+                    <p>
+                        Parsed Suricata events
+                    </p>
+
+                </div>
+
+                <div
+                    id="resultLabel"
+                    class="result-label"
+                >
+                    0 events
+                </div>
+
+            </div>
+
+
+            <!-- =========================================
+                 NORMAL EVENT LIST
+            ========================================== -->
+
+            <section
+                id="logList"
+                class="event-list"
+            >
+            </section>
+
+
+            <!-- =========================================
+                 SKIPPED RECORDS
+                 PARSE ERRORS ARE SHOWN HERE ONLY
+            ========================================== -->
+
+            <section
+                id="parseErrorsSection"
+                class="parse-errors-section"
+            >
+
+                <div class="section-title">
+
+                    <div>
+
+                        <div class="section-title-row">
+
+                            <span class="warning-icon">
+                                !
+                            </span>
+
+                            <h2>
+                                Skipped Records
+                            </h2>
+
+                        </div>
+
+                        <p>
+                            Invalid JSON lines that were skipped during parsing.
+                        </p>
+
+                    </div>
+
+
+                    <span
+                        id="parseErrorBadge"
+                        class="error-count-badge"
+                    >
+                        0
+                    </span>
+
+                </div>
+
+
+                <div
+                    id="parseErrorList"
+                    class="parse-error-list"
+                >
+                </div>
+
+            </section>
+
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================
+     NORMAL EVENT TEMPLATE
+========================================== -->
+
+<div
+    id="eventTemplate"
+    class="event-card template"
+>
+
+
+    <div class="event-top-border"></div>
+
+
+    <div class="event-card-body">
+
+
+        <div class="event-header">
+
+
+            <div class="event-title-area">
+
+
+                <div class="event-icon">
+                    E
+                </div>
+
+
+                <div>
+
+                    <div class="event-name-row">
+
+                        <span class="event-badge">
+                        </span>
+
+                        <span class="severity-badge">
+                        </span>
+
+                    </div>
+
+                    <div class="event-summary-small">
+                        Network event
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="event-time">
+
+                <span class="time-label">
+                    TIMESTAMP
+                </span>
+
+                <time class="timestamp">
+                </time>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="summary">
+        </div>
+
+
+        <div class="connection">
+
+
+            <div class="endpoint-block">
+
+                <span class="endpoint-label">
+                    SOURCE
+                </span>
+
+                <span class="endpoint source">
+                </span>
+
+            </div>
+
+
+            <div class="connection-arrow">
+                →
+            </div>
+
+
+            <div class="endpoint-block">
+
+                <span class="endpoint-label">
+                    DESTINATION
+                </span>
+
+                <span class="endpoint destination">
+                </span>
+
+            </div>
+
+
+            <div class="protocol">
+            </div>
+
+
+        </div>
+
+
+        <div class="meta-row">
+        </div>
+
+
+        <details class="raw-details">
+
+            <summary>
+                View Raw JSON
+            </summary>
+
+            <pre class="raw-json"></pre>
+
+        </details>
+
+
+    </div>
+
+</div>
+
+
+<!-- =========================================
+     PARSE ERROR TEMPLATE
+========================================== -->
+
+<div
+    id="errorTemplate"
+    class="parse-error-card template"
+>
+
+
+    <div class="parse-error-icon">
+        !
+    </div>
+
+
+    <div class="parse-error-content">
+
+
+        <div class="parse-error-header">
+
+
+            <div>
+
+                <span class="parse-error-label">
+                    PARSE ERROR
+                </span>
+
+                <strong class="error-line">
+                </strong>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="parse-error-summary">
+            Invalid JSON line.
+        </div>
+
+
+        <div class="raw-details-inline">
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =========================================
+     JQUERY
+========================================== -->
+
+<script src="js/jquery-3.7.1.min.js"></script>
+
+<script src="js/log-viewer.js"></script>
+
+</body>
+
+</html>
